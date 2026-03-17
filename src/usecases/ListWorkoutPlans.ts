@@ -23,7 +23,7 @@ interface OutputDto {
       name: string;
       sets: number;
       reps: number;
-      weight: number;
+      weightInGrams: number;
       restTimeInSeconds: number;
     }>;
   }>;
@@ -63,7 +63,7 @@ export class ListWorkoutPlans {
           name: exercise.name,
           sets: exercise.sets,
           reps: exercise.reps,
-          weight: exercise.weight,
+          weightInGrams: exercise.weightInGrams,
           restTimeInSeconds: exercise.restTimeInSeconds,
         })),
       })),

@@ -8,7 +8,7 @@ export const ErrorSchema = z.object({
 });
 
 export const StartWorkoutSessionSchema = z.object({
-  userWorkoutSessionId: z.uuid(),
+  userWorkoutSessionId: z.string(),
 });
 
 export const UpdateWorkoutSessionBodySchema = z.object({
@@ -16,7 +16,7 @@ export const UpdateWorkoutSessionBodySchema = z.object({
 });
 
 export const UpdateWorkoutSessionSchema = z.object({
-  id: z.uuid(),
+  id: z.string(),
   startedAt: z.iso.datetime(),
   completedAt: z.iso.datetime(),
 });
@@ -43,8 +43,8 @@ export const StatsSchema = z.object({
 export const HomeDataSchema = z.object({
   activeWorkoutPlanId: z.string(),
   todayWorkoutDay: z.object({
-    workoutPlanId: z.uuid(),
-    id: z.uuid(),
+    workoutPlanId: z.string(),
+    id: z.string(),
     name: z.string(),
     isRest: z.boolean(),
     weekDay: z.enum(WeekDay),
@@ -63,7 +63,7 @@ export const HomeDataSchema = z.object({
 });
 
 export const GetWorkoutDaySchema = z.object({
-  id: z.uuid(),
+  id: z.string(),
   name: z.string(),
   isRest: z.boolean(),
   coverImageUrl: z.url().optional(),
@@ -71,20 +71,20 @@ export const GetWorkoutDaySchema = z.object({
   weekDay: z.enum(WeekDay),
   exercises: z.array(
     z.object({
-      id: z.uuid(),
+      id: z.string(),
       name: z.string(),
       order: z.number(),
-      workoutDayId: z.uuid(),
+      workoutDayId: z.string(),
       sets: z.number(),
       reps: z.number(),
-      weight: z.number(),
+      weightInGrams: z.number(),
       restTimeInSeconds: z.number(),
     }),
   ),
   sessions: z.array(
     z.object({
-      id: z.uuid(),
-      workoutDayId: z.uuid(),
+      id: z.string(),
+      workoutDayId: z.string(),
       startedAt: z.iso.datetime().optional(),
       completedAt: z.iso.datetime().optional(),
     }),
@@ -92,11 +92,11 @@ export const GetWorkoutDaySchema = z.object({
 });
 
 export const GetWorkoutPlanSchema = z.object({
-  id: z.uuid(),
+  id: z.string(),
   name: z.string(),
   workoutDays: z.array(
     z.object({
-      id: z.uuid(),
+      id: z.string(),
       weekDay: z.enum(WeekDay),
       name: z.string(),
       isRest: z.boolean(),
@@ -116,12 +116,12 @@ export const ListWorkoutPlansQuerySchema = z.object({
 
 export const ListWorkoutPlansSchema = z.array(
   z.object({
-    id: z.uuid(),
+    id: z.string(),
     name: z.string(),
     isActive: z.boolean(),
     workoutDays: z.array(
       z.object({
-        id: z.uuid(),
+        id: z.string(),
         name: z.string(),
         weekDay: z.enum(WeekDay),
         isRest: z.boolean(),
@@ -129,7 +129,7 @@ export const ListWorkoutPlansSchema = z.array(
         coverImageUrl: z.url().optional(),
         exercises: z.array(
           z.object({
-            id: z.uuid(),
+            id: z.string(),
             order: z.number(),
             name: z.string(),
             sets: z.number(),
@@ -142,15 +142,39 @@ export const ListWorkoutPlansSchema = z.array(
   }),
 );
 
+export const UpsertUserTrainDataBodySchema = z.object({
+  weightInGrams: z.number().min(0),
+  heightInCm: z.number().min(0),
+  age: z.number().min(0),
+  bodyFatPercentage: z.number().min(0).max(100),
+});
+
+export const UserTrainDataSchema = z.object({
+  userId: z.string(),
+  userName: z.string(),
+  weightInGrams: z.number().min(0),
+  heightInCm: z.number().min(0),
+  age: z.number().min(0),
+  bodyFatPercentage: z.number().min(0).max(100),
+});
+
+export const UpsertUserTrainDataSchema = z.object({
+  userId: z.string(),
+  weightInGrams: z.number().min(0),
+  heightInCm: z.number().min(0),
+  age: z.number().min(0),
+  bodyFatPercentage: z.number().min(0).max(100),
+});
+
 export const WorkoutPlanSchema = z.object({
-  id: z.uuid(),
+  id: z.string(),
   name: z.string().trim().min(1),
   workoutDays: z.array(
     z.object({
       name: z.string().trim().min(1),
       weekDay: z.enum(WeekDay),
       isRest: z.boolean().default(false),
-      estimatedDurationInSeconds: z.number().min(1),
+      estimatedDurationInSeconds: z.number().min(0),
       coverImageUrl: z.url().optional(),
       exercises: z.array(
         z.object({

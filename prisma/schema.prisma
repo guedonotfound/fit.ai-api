@@ -8,16 +8,20 @@ datasource db {
 }
 
 model User {
-  id            String        @id
-  workoutPlans  WorkoutPlan[]
-  name          String
-  email         String
-  emailVerified Boolean       @default(false)
-  image         String?
-  createdAt     DateTime      @default(now())
-  updatedAt     DateTime      @updatedAt
-  sessions      Session[]
-  accounts      Account[]
+  id                String        @id
+  workoutPlans      WorkoutPlan[]
+  name              String
+  email             String
+  emailVerified     Boolean       @default(false)
+  image             String?
+  createdAt         DateTime      @default(now())
+  updatedAt         DateTime      @updatedAt
+  sessions          Session[]
+  accounts          Account[]
+  weightInGrams     Int?
+  heightInCm        Int?
+  age               Int?
+  bodyFatPercentage Int?
 
   @@unique([email])
   @@map("user")
@@ -67,7 +71,7 @@ model WorkoutExercise {
   workoutDay        WorkoutDay @relation(fields: [workoutDayId], references: [id], onDelete: Cascade)
   sets              Int
   reps              Int
-  weight            Int        @default(0)
+  weightInGrams     Int        @default(0)
   restTimeInSeconds Int
   createdAt         DateTime   @default(now())
   updatedAt         DateTime   @updatedAt
