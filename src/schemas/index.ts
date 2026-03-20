@@ -42,16 +42,18 @@ export const StatsSchema = z.object({
 
 export const HomeDataSchema = z.object({
   activeWorkoutPlanId: z.string(),
-  todayWorkoutDay: z.object({
-    workoutPlanId: z.string(),
-    id: z.string(),
-    name: z.string(),
-    isRest: z.boolean(),
-    weekDay: z.enum(WeekDay),
-    estimatedDurationInSeconds: z.number(),
-    coverImageUrl: z.url().optional(),
-    exercisesCount: z.number(),
-  }),
+  todayWorkoutDay: z
+    .object({
+      workoutPlanId: z.string(),
+      id: z.string(),
+      name: z.string(),
+      isRest: z.boolean(),
+      weekDay: z.enum(WeekDay),
+      estimatedDurationInSeconds: z.number(),
+      coverImageUrl: z.url().optional(),
+      exercisesCount: z.number(),
+    })
+    .optional(),
   workoutStreak: z.number(),
   consistencyByDay: z.record(
     z.iso.date(),
