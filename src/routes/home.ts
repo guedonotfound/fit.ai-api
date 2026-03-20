@@ -6,6 +6,7 @@ import z from "zod";
 import { NotFoundError } from "../errors/index.js";
 import { auth } from "../lib/auth.js";
 import { ErrorSchema, HomeDataSchema } from "../schemas/index.js";
+import { GetHomeData } from "../usecases/GetHomeData.js";
 
 export const homeRoutes = async (app: FastifyInstance) => {
   app.withTypeProvider<ZodTypeProvider>().route({
@@ -35,6 +36,14 @@ export const homeRoutes = async (app: FastifyInstance) => {
             code: "UNAUTHORIZED",
           });
         }
+
+        const getHomeData = new GetHomeData();
+        const result = await getHomeData.execute({
+          userId: session.user.id,
+          date: request.params.date,
+        });
+
+        return reply.status(200).send(result);
       } catch (error) {
         app.log.error(error);
 
@@ -46,7 +55,7 @@ export const homeRoutes = async (app: FastifyInstance) => {
         }
 
         return reply.status(500).send({
-          error: "Internal Server Error",
+          error: "Internal server error",
           code: "INTERNAL_SERVER_ERROR",
         });
       }

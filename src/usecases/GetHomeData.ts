@@ -1,6 +1,7 @@
 import dayjs from "dayjs";
 import utc from "dayjs/plugin/utc.js";
 
+import { NotFoundError } from "../errors/index.js";
 import { WeekDay } from "../generated/prisma/enums.js";
 import { prisma } from "../lib/db.js";
 
@@ -22,7 +23,7 @@ interface InputDto {
 }
 
 interface OutputDto {
-  activeWorkoutPlan: string;
+  activeWorkoutPlanId: string;
   todayWorkoutDay: {
     workoutPlanId: string;
     id: string;
@@ -60,7 +61,7 @@ export class GetHomeData {
     });
 
     if (!workoutPlan) {
-      throw new Error("No active workout plan found");
+      throw new NotFoundError("Active workout plan not found");
     }
 
     const todayWeekDay = WEEKDAY_MAP[currentDate.day()];
@@ -69,11 +70,11 @@ export class GetHomeData {
     );
 
     if (!todayWorkoutDay) {
-      throw new Error("No workout day found for today");
+      throw new NotFoundError("No workout day found for today");
     }
 
     const weekStart = currentDate.day(0).startOf("day");
-    const weekEnd = currentDate.day(6).startOf("day");
+    const weekEnd = currentDate.day(6).endOf("day");
 
     const weekSessions = await prisma.workoutSession.findMany({
       where: {
@@ -115,7 +116,7 @@ export class GetHomeData {
     );
 
     return {
-      activeWorkoutPlan: workoutPlan.id,
+      activeWorkoutPlanId: workoutPlan.id,
       todayWorkoutDay: {
         workoutPlanId: workoutPlan.id,
         id: todayWorkoutDay.id,
@@ -153,7 +154,7 @@ export class GetHomeData {
       select: { startedAt: true },
     });
 
-    const completedDays = new Set(
+    const completedDates = new Set(
       allSessions.map((s) => dayjs.utc(s.startedAt).format("YYYY-MM-DD")),
     );
 
@@ -175,13 +176,15 @@ export class GetHomeData {
       }
 
       const dateKey = day.format("YYYY-MM-DD");
-      if (completedDays.has(dateKey)) {
+      if (completedDates.has(dateKey)) {
         streak++;
         day = day.subtract(1, "day");
         continue;
       }
+
       break;
     }
+
     return streak;
   }
 }
