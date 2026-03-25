@@ -41,6 +41,7 @@ export class UpdateWorkoutExerciseWeight {
       where: { id: dto.workoutExerciseId, workoutDayId: dto.workoutDayId },
       data: { weightInGrams: dto.weightInGrams * 1000 },
     });
+
     if (updatedExerciseWeight.createdAt === null) {
       throw new NotFoundError("Workout exercise not found");
     }
