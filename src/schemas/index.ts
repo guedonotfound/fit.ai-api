@@ -21,6 +21,15 @@ export const UpdateWorkoutSessionSchema = z.object({
   completedAt: z.iso.datetime(),
 });
 
+export const UpdateWorkoutExerciseBodySchema = z.object({
+  weightInGrams: z.number(),
+});
+
+export const UpdateWorkoutExerciseSchema = z.object({
+  id: z.string(),
+  weightInGrams: z.number(),
+});
+
 export const StatsQuerySchema = z.object({
   from: z.iso.date(),
   to: z.iso.date(),

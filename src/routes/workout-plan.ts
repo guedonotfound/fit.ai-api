@@ -16,6 +16,8 @@ import {
   ListWorkoutPlansQuerySchema,
   ListWorkoutPlansSchema,
   StartWorkoutSessionSchema,
+  UpdateWorkoutExerciseBodySchema,
+  UpdateWorkoutExerciseSchema,
   UpdateWorkoutSessionBodySchema,
   UpdateWorkoutSessionSchema,
   WorkoutPlanSchema,
@@ -25,6 +27,7 @@ import { GetWorkoutDay } from "../usecases/GetWorkoutDay.js";
 import { GetWorkoutPlan } from "../usecases/GetWorkoutPlan.js";
 import { ListWorkoutPlans } from "../usecases/ListWorkoutPlans.js";
 import { StartWorkoutSession } from "../usecases/StartWorkoutSession.js";
+import { UpdateWorkoutExerciseWeight } from "../usecases/UpdateWorkoutExerciseWeight.js";
 import { UpdateWorkoutSession } from "../usecases/UpdateWorkoutSession.js";
 
 export const workoutPlanRoutes = async (app: FastifyInstance) => {
@@ -339,6 +342,65 @@ export const workoutPlanRoutes = async (app: FastifyInstance) => {
           workoutDayId: request.params.workoutDayId,
           sessionId: request.params.sessionId,
           completedAt: request.body.completedAt,
+        });
+        return reply.status(200).send(result);
+      } catch (error) {
+        app.log.error(error);
+
+        if (error instanceof NotFoundError) {
+          return reply.status(404).send({
+            error: error.message,
+            code: "NOT_FOUND_ERROR",
+          });
+        }
+        return reply.status(500).send({
+          error: "Internal server error",
+          code: "INTERNAL_SERVER_ERROR",
+        });
+      }
+    },
+  });
+
+  app.withTypeProvider<ZodTypeProvider>().route({
+    method: "PATCH",
+    url: "/:workoutPlanId/days/:workoutDayId/workoutExercises/:workoutExerciseId",
+    schema: {
+      operationId: "updateWorkoutExerciseWeight",
+      tags: ["Workout Plan"],
+      summary: "Update a workout exercise weight",
+      params: z.object({
+        workoutPlanId: z.string(),
+        workoutDayId: z.string(),
+        workoutExerciseId: z.string(),
+      }),
+      body: UpdateWorkoutExerciseBodySchema,
+      response: {
+        200: UpdateWorkoutExerciseSchema,
+        401: ErrorSchema,
+        404: ErrorSchema,
+        422: ErrorSchema,
+        500: ErrorSchema,
+      },
+    },
+    handler: async (request, reply) => {
+      try {
+        const session = await auth.api.getSession({
+          headers: fromNodeHeaders(request.headers),
+        });
+        if (!session) {
+          return reply.status(401).send({
+            error: "Unauthorized",
+            code: "UNAUTHORIZED",
+          });
+        }
+
+        const updateWorkoutExerciseWeight = new UpdateWorkoutExerciseWeight();
+        const result = await updateWorkoutExerciseWeight.execute({
+          userId: session.user.id,
+          workoutPlanId: request.params.workoutPlanId,
+          workoutDayId: request.params.workoutDayId,
+          workoutExerciseId: request.params.workoutExerciseId,
+          weightInGrams: request.body.weightInGrams,
         });
         return reply.status(200).send(result);
       } catch (error) {
